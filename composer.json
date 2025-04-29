@@ -3,6 +3,7 @@
     "description": "Laravel package for Al Qaseh payment gateway integration",
     "type": "library",
     "license": "MIT",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "Osama Saad",

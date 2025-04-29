@@ -137,22 +137,6 @@ $status = $paymentInfo->getData()['status'];
 $tokenInfo = AlQaseh::getPaymentInfoByToken('payment-token');
 ```
 
-#### Retry Failed Payment ([API Reference](https://docs.alqaseh.com/api#tag/payment-gateway-service/POST/egw/payments/retry))
-```php
-AlQaseh::retryPayment(
-    paymentId: 'failed-payment-id',
-    details: 'Retry after system error'
-);
-```
-
-#### Revoke Payment ([API Reference](https://docs.alqaseh.com/api#tag/payment-gateway-service/POST/egw/payments/revoke))
-```php
-AlQaseh::revokePayment(
-    paymentId: 'pending-payment-id',
-    details: 'Customer cancellation request'
-);
-```
-
 #### Direct Payment Processing (PCI-DSS Certified Only) ([API Reference](https://docs.alqaseh.com/api#tag/payment-gateway-service/POST/egw/payments/process/{token}))
 ```php
 try {
@@ -172,6 +156,22 @@ try {
 }
 ```
 
+#### Retry Failed Payment ([API Reference](https://docs.alqaseh.com/api#tag/payment-gateway-service/POST/egw/payments/retry))
+```php
+AlQaseh::retryPayment(
+    paymentId: 'failed-payment-id',
+    details: 'Retry after system error'
+);
+```
+
+#### Revoke Payment ([API Reference](https://docs.alqaseh.com/api#tag/payment-gateway-service/POST/egw/payments/revoke))
+```php
+AlQaseh::revokePayment(
+    paymentId: 'pending-payment-id',
+    details: 'Customer cancellation request'
+);
+```
+
 ## Validation
 
 The package includes automatic validation for all requests using dedicated validators:
@@ -179,6 +179,8 @@ The package includes automatic validation for all requests using dedicated valid
 - `CreatePaymentValidator`: Validates payment creation parameters
 - `PaymentHistoryValidator`: Ensures valid history filters
 - `PaymentInfoValidator`: Validates payment ID formats
+- `PaymentInfoByTokenValidator`: Validates payment Token formats
+- `ProcessPaymentValidator`: Validates process request parameters
 - `RetryPaymentValidator`: Validates retry request parameters
 - `RevokePaymentValidator`: Ensures proper revocation requests
 

@@ -11,6 +11,7 @@ use Osama\AlQaseh\Validators\DownloadPaymentHistoryValidator;
 use Osama\AlQaseh\Validators\PaymentHistoryValidator;
 use Osama\AlQaseh\Validators\PaymentInfoByTokenValidator;
 use Osama\AlQaseh\Validators\PaymentInfoValidator;
+use Osama\AlQaseh\Validators\ProcessPaymentValidator;
 use Osama\AlQaseh\Validators\RetryPaymentValidator;
 use Osama\AlQaseh\Validators\RevokePaymentValidator;
 
@@ -59,7 +60,7 @@ class AlQaseh
         $sandbox = true
     ) {
         $this->sandbox = $sandbox;
-        
+
         // Use sandbox credentials by default if sandbox is true
         $this->apiKey = $sandbox ? '1X6Bvq65kpx1Yes5fYA5mbm8ixiexONo' : $apiKey;
         $this->merchantId = $sandbox ? 'public_test' : $merchantId;
@@ -82,7 +83,7 @@ class AlQaseh
         ];
     }
 
-        /**
+    /**
      * Create a new payment request
      *
      * @param float  $amount          Required. The payment amount
@@ -129,23 +130,23 @@ class AlQaseh
         if ($country) {
             $payload['country'] = $country;
         }
-        
+
         if ($customData) {
             $payload['custom_data'] = $customData;
         }
-        
+
         if ($email) {
             $payload['email'] = $email;
         }
-        
+
         if ($nonce) {
             $payload['nonce'] = $nonce;
         }
-        
+
         if ($pSign) {
             $payload['p_sing'] = $pSign;
         }
-        
+
         if ($webhookUrl) {
             $payload['webhook_url'] = $webhookUrl;
         }
@@ -240,6 +241,33 @@ class AlQaseh
         return $this->sendRequest('GET', AlQasehEndpoint::DOWNLOAD_PAYMENT_HISTORY->value, [], $queryParams);
     }
 
+    /**
+     * Get detailed payment context information
+     *
+     * @param string $id Required. The payment context ID to retrieve
+     * @return PaymentResponse Returns payment context details including:
+     *         - amount: Payment amount
+     *         - approval_code: Transaction approval code
+     *         - country: Country code
+     *         - created_at: Creation timestamp
+     *         - currency: Payment currency
+     *         - custom_data: Custom data object
+     *         - payment_status_histories: Array of status changes
+     *         - transaction_type: Retail/Authorization/Reversal/etc
+     *         - webhook_url: Configured webhook URL
+     * @throws AlQasehException When API request fails
+     * @throws InvalidArgumentException When invalid ID is provided
+     */
+    public function getPaymentInfo(string $id)
+    {
+        // Validate the ID
+        PaymentInfoValidator::validate($id);
+
+        return $this->sendRequest(
+            'GET',
+            AlQasehEndpoint::PAYMENT_DETAILS->getEndpoint(['id' => $id])
+        );
+    }
 
     /**
      * Get payment information by ID
@@ -272,15 +300,26 @@ class AlQaseh
     }
 
     /**
-     * Process payment with card details
+     * Process tokenized payment with card details
      *
-     * @param string $token
-     * @param string $cardNumber
-     * @param string $cvv
-     * @param string $expMonth
-     * @param string $expYear
-     * @return PaymentResponse
-     * @throws AlQasehException
+     * @param string $token Required. Payment token from createPayment response
+     * @param string $cardNumber Required. Card number (13-19 digits)
+     * @param string $cvv Required. Card verification value (3-4 digits)
+     * @param string $expMonth Required. Expiration month (1-12)
+     * @param string $expYear Required. Expiration year (YYYY format)
+     * @return PaymentResponse Returns payment response object containing:
+     *         - transaction_id: Unique transaction identifier
+     *         - approval_code: Bank authorization code
+     *         - amount: Processed amount
+     *         - currency: Transaction currency
+     *         - timestamp: Processing timestamp
+     *         - card_last4: Last 4 digits of card
+     *         - card_type: Visa/Mastercard/etc
+     *         - payment_status: succeeded|failed|pending
+     *         - error_code: API error code if failed
+     *         - error_message: Human-readable error description
+     * @throws AlQasehException When API request fails
+     * @throws InvalidArgumentException When invalid parameters are provided
      */
     public function processPayment($token, $cardNumber, $cvv, $expMonth, $expYear)
     {
@@ -291,10 +330,13 @@ class AlQaseh
             'EXPYear' => $expYear
         ];
 
+        // Validate the payload
+        ProcessPaymentValidator::validate($payload);
+
         return $this->sendRequest('POST', AlQasehEndpoint::PROCESS_PAYMENT->getEndpoint(['token' => $token]), $payload);
     }
 
-  
+
     /**
      * Retry a failed or expired payment
      *
@@ -319,7 +361,7 @@ class AlQaseh
 
         return $this->sendRequest('POST', AlQasehEndpoint::RETRY_PAYMENT->value, $payload);
     }
-    
+
     /**
      * Revoke a payment before processing
      *
@@ -351,8 +393,8 @@ class AlQaseh
         return $this->sendRequest('POST', AlQasehEndpoint::REVOKE_PAYMENT->value, $payload);
     }
 
-   
-    /**
+
+     /**
      * Send request to API
      *
      * @param string $method
@@ -365,7 +407,7 @@ class AlQaseh
     protected function sendRequest($method, $endpoint, array $data = [], array $queryParams = [])
     {
         $url = rtrim($this->baseUrl, '/') . $endpoint;
-        
+
         if (!empty($queryParams)) {
             $url .= '?' . http_build_query($queryParams);
         }
@@ -382,9 +424,9 @@ class AlQaseh
 
             $response = Http::withOptions($options)
                 ->{strtolower($method)}($url);
-            
+
             $responseData = $response->json();
-            
+
             if ($response->failed()) {
                 throw new AlQasehException(
                     $responseData['err'] ?? 'Unknown error occurred',
@@ -392,43 +434,14 @@ class AlQaseh
                     $responseData['reference_code'] ?? null
                 );
             }
-            
+
             return new PaymentResponse($responseData);
         } catch (\Exception $e) {
             if ($e instanceof AlQasehException) {
                 throw $e;
             }
-            
+
             throw new AlQasehException('Connection error: ' . $e->getMessage(), 0, $e);
         }
-    }
-
-
-    /**
-     * Get detailed payment context information
-     *
-     * @param string $id Required. The payment context ID to retrieve
-     * @return PaymentResponse Returns payment context details including:
-     *         - amount: Payment amount
-     *         - approval_code: Transaction approval code
-     *         - country: Country code
-     *         - created_at: Creation timestamp
-     *         - currency: Payment currency
-     *         - custom_data: Custom data object
-     *         - payment_status_histories: Array of status changes
-     *         - transaction_type: Retail/Authorization/Reversal/etc
-     *         - webhook_url: Configured webhook URL
-     * @throws AlQasehException When API request fails
-     * @throws InvalidArgumentException When invalid ID is provided
-     */
-    public function getPaymentContext(string $id)
-    {
-        // Validate the ID
-        PaymentInfoValidator::validate($id);
-
-        return $this->sendRequest(
-            'GET',
-            AlQasehEndpoint::PAYMENT_DETAILS->getEndpoint(['id' => $id])
-        );
     }
 }

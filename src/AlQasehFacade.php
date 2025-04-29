@@ -23,6 +23,6 @@ class AlQasehFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'alqaseh';
+        return AlQaseh::class;
     }
 }

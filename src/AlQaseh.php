@@ -430,7 +430,7 @@ class AlQaseh
             if ($response->failed()) {
                 throw new AlQasehException(
                     $responseData['err'] ?? 'Unknown error occurred',
-                    $responseData['error_code'] ?? $response->status(),
+                    $response->status(),
                     $responseData['reference_code'] ?? null
                 );
             }

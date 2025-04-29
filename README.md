@@ -81,13 +81,13 @@ try {
     $response = AlQaseh::createPayment(
         amount: 100.00,
         currency: 'USD',
-        order_id: 'ORDER_123',
+        orderId: 'ORDER_123',
         description: 'Premium Subscription',
-        redirect_url: 'https://example.com/callback',
-        transaction_type: 'Retail',
+        redirectUrl: 'https://example.com/callback',
+        transactionType: 'Retail',
         email: 'customer@example.com',
         country: 'US',
-        webhook_url: 'https://example.com/webhooks/payment'
+        webhookUrl: 'https://example.com/webhooks/payment'
     );
 
     if ($response->isSuccessful()) {

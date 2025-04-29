@@ -28,6 +28,6 @@ class AlQasehServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/alqaseh.php' => config_path('alqaseh.php'),
-        ], 'alqaseh-config');
+        ], 'config');
     }
 }

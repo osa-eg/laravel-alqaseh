@@ -46,6 +46,20 @@ class AlQaseh
     protected $sandbox;
 
     /**
+     * Client ID
+     *
+     * @var string
+     */
+    protected $clientId;
+
+    /**
+     * Client Secret
+     *
+     * @var string
+     */
+    protected $clientSecret;
+
+    /**
      * Constructor
      *
      * @param string|null $apiKey
@@ -65,6 +79,10 @@ class AlQaseh
         $this->apiKey = $sandbox ? '1X6Bvq65kpx1Yes5fYA5mbm8ixiexONo' : $apiKey;
         $this->merchantId = $sandbox ? 'public_test' : $merchantId;
         $this->baseUrl = $sandbox ? 'https://api-test.alqaseh.com/v1' : ($baseUrl ?? 'https://api.alqaseh.com/v1');
+        
+        // Initialize client ID and secret
+        $this->clientId = $sandbox ? 'public_test' : $merchantId;
+        $this->clientSecret = $sandbox ? '1X6Bvq65kpx1Yes5fYA5mbm8ixiexONo' : $apiKey;
     }
 
     /**
@@ -77,9 +95,7 @@ class AlQaseh
         return [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'API-Key' => $this->apiKey,
-            'X-Merchant-ID' => $this->merchantId,
-            'Authorization' => 'Basic ' . base64_encode($this->merchantId . ':' . $this->apiKey)
+            'Authorization' => 'Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret)
         ];
     }
 

@@ -1,9 +1,15 @@
 
+<!-- Full-width image -->
+<p align="center">
+  <img src="assets/images/laravel-alqaseh.jpg" alt="Image 2" style="width:100%;">
+</p>
+
 # Laravel Al Qaseh Payment Gateway
 
 [![License](https://img.shields.io/github/license/osa-eg/laravel-alqaseh)](LICENSE.md)
 
 A Laravel package providing seamless integration with the Al Qaseh Payment Gateway, offering both direct API integration for PCI-DSS certified merchants and hosted payment page solutions for non-certified merchants.
+
 
 ## Features
 

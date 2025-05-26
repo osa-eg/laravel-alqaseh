@@ -228,16 +228,6 @@ This package supports:
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 ```
 
-Key improvements made:
-1. Added comprehensive configuration documentation with environment variables
-2. Included examples for all methods from AlQaseh.php
-3. Added validation section explaining built-in validators
-4. Documented PaymentResponse methods and error handling
-5. Added direct API documentation links for each endpoint
-6. Included PCI-DSS specific usage notes
-7. Improved parameter documentation and code examples
-8. Added sandbox configuration details
-9. Included response handling best practices
-10. Added error handling examples for all operations
+
 
         
